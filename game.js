@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.addEventListener('mousedown', handleCanvasInput);
         canvas.addEventListener('mousemove', handleCanvasInput);
         canvas.addEventListener('mouseup', handleCanvasInputEnd);
-        canvas.addEventListener('touchstart', handleCanvasInput);
+        canvas.addEventListener('touchstart', handleCanvasInput, { passive: false });
         canvas.addEventListener('touchmove', (e) => {
             e.preventDefault(); // Prevent scrolling
             if (isTouching) {
@@ -279,8 +279,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     touchDirectionY /= magnitude;
                 }
             }
-        });
-        canvas.addEventListener('touchend', handleCanvasInputEnd);
+        }, { passive: false });
+        canvas.addEventListener('touchend', handleCanvasInputEnd, { passive: false });
 
         // Keyboard input (still active for desktop)
         window.removeEventListener('keydown', handleKeyboardInput); // Prevent duplicates
