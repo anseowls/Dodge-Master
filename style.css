@@ -32,6 +32,8 @@ canvas {
     display: block;
     width: 100%;
     height: 100%;
+    opacity: 0; /* Initially hidden */
+    transition: opacity 0.5s ease-in-out; /* Smooth transition */
 }
 
 #ui {

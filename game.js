@@ -249,6 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Initial canvas resize
         resizeCanvas();
+        canvas.style.opacity = 1; // Make canvas visible after resize
 
         // Remove previous event listeners to prevent duplicates
         canvas.removeEventListener('mousedown', handleCanvasInput);
@@ -267,11 +268,15 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.addEventListener('touchend', handleCanvasInputEnd);
 
         // Keyboard input (still active for desktop)
+        window.removeEventListener('keydown', handleKeyboardInput); // Prevent duplicates
+        window.removeEventListener('keyup', handleKeyboardInputEnd); // Prevent duplicates
         window.addEventListener('keydown', handleKeyboardInput);
         window.addEventListener('keyup', handleKeyboardInputEnd);
 
         // Start button listener
+        startButton.removeEventListener('click', startGame); // Prevent duplicates
         startButton.addEventListener('click', startGame);
+        restartButton.removeEventListener('click', init); // Prevent duplicates
         restartButton.addEventListener('click', init);
     }
 
@@ -368,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         for (let i = items.length - 1; i >= 0; i--) {
-            if (Math.hypot(player.pos.x - items[i].pos.x, player.pos.y - items[i].pos.y) < player.size / 2 + items[i].size / 2) {
+            if (Math.hypot(player.pos.x - items[i].pos.x, items[i].pos.y - items[i].pos.y) < player.size / 2 + items[i].size / 2) {
                 player.activatePowerUp(items[i].type);
                 items.splice(i, 1);
             }
@@ -410,7 +415,6 @@ document.addEventListener('DOMContentLoaded', () => {
         scoreEl.innerText = score;
     }
 
-    restartButton.addEventListener('click', init);
-
+    // Initial call to init to set up the start screen
     init();
 });
