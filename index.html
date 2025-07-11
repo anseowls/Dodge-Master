@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>2D Dodge Game</title>
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+</head>
+<body>
+    <h1>Dodge</h1>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        <div id="ui">
+            <span>Score: <span id="score">0</span></span>
+        </div>
+        <div id="gameOverScreen" style="display: none;">
+            <h2>Game Over</h2>
+            <p>Your Score: <span id="finalScore">0</span></p>
+            <button id="restartButton">Restart</button>
+        </div>
+        <div id="startScreen">
+            <h2>Dodge Game</h2>
+            <button id="startButton">Start Game</button>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
