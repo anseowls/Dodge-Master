@@ -37,8 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let projectileSpeedModifier = 1;
 
     // Touch/Click movement variables
-    let targetX = -1;
-    let targetY = -1;
+    let touchDirectionX = 0;
+    let touchDirectionY = 0;
     let isTouching = false;
 
     // --- SOUNDS ---
@@ -141,18 +141,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (keys.d || keys.ArrowRight) this.pos.x += this.speed;
 
             // Touch/Click movement
-            if (isTouching && targetX !== -1 && targetY !== -1) {
-                const dx = targetX - this.pos.x;
-                const dy = targetY - this.pos.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance > this.speed) {
-                    this.pos.x += (dx / distance) * this.speed;
-                    this.pos.y += (dy / distance) * this.speed;
-                } else {
-                    this.pos.x = targetX;
-                    this.pos.y = targetY;
-                }
+            if (isTouching) {
+                this.pos.x += touchDirectionX * this.speed;
+                this.pos.y += touchDirectionY * this.speed;
             }
             this.checkBounds();
         }
@@ -264,7 +255,31 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.addEventListener('mousemove', handleCanvasInput);
         canvas.addEventListener('mouseup', handleCanvasInputEnd);
         canvas.addEventListener('touchstart', handleCanvasInput);
-        canvas.addEventListener('touchmove', handleCanvasInput);
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault(); // Prevent scrolling
+            if (isTouching) {
+                const rect = canvas.getBoundingClientRect();
+                const touchX = e.touches[0].clientX - rect.left;
+                const touchY = e.touches[0].clientY - rect.top;
+
+                touchDirectionX = 0;
+                touchDirectionY = 0;
+
+                const deadZone = player.size * 1.5;
+
+                if (touchX < player.pos.x - deadZone) touchDirectionX = -1;
+                else if (touchX > player.pos.x + deadZone) touchDirectionX = 1;
+
+                if (touchY < player.pos.y - deadZone) touchDirectionY = -1;
+                else if (touchY > player.pos.y + deadZone) touchDirectionY = 1;
+
+                if (touchDirectionX !== 0 && touchDirectionY !== 0) {
+                    const magnitude = Math.sqrt(touchDirectionX * touchDirectionX + touchDirectionY * touchDirectionY);
+                    touchDirectionX /= magnitude;
+                    touchDirectionY /= magnitude;
+                }
+            }
+        });
         canvas.addEventListener('touchend', handleCanvasInputEnd);
 
         // Keyboard input (still active for desktop)
@@ -315,15 +330,35 @@ document.addEventListener('DOMContentLoaded', () => {
             clientY = e.clientY;
         }
 
-        targetX = clientX - rect.left;
-        targetY = clientY - rect.top;
+        const touchX = clientX - rect.left;
+        const touchY = clientY - rect.top;
+
+        // Determine direction based on touch position relative to player
+        touchDirectionX = 0;
+        touchDirectionY = 0;
+
+        // Define a dead zone around the player to avoid accidental movement
+        const deadZone = player.size * 1.5;
+
+        if (touchX < player.pos.x - deadZone) touchDirectionX = -1; // Left of player
+        else if (touchX > player.pos.x + deadZone) touchDirectionX = 1; // Right of player
+
+        if (touchY < player.pos.y - deadZone) touchDirectionY = -1; // Above player
+        else if (touchY > player.pos.y + deadZone) touchDirectionY = 1; // Below player
+
+        // Normalize diagonal movement
+        if (touchDirectionX !== 0 && touchDirectionY !== 0) {
+            const magnitude = Math.sqrt(touchDirectionX * touchDirectionX + touchDirectionY * touchDirectionY);
+            touchDirectionX /= magnitude;
+            touchDirectionY /= magnitude;
+        }
     }
 
     function handleCanvasInputEnd(e) {
         e.preventDefault(); // Prevent scrolling
         isTouching = false;
-        targetX = -1;
-        targetY = -1;
+        touchDirectionX = 0;
+        touchDirectionY = 0;
     }
 
     function spawnProjectile() {
